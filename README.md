@@ -2,10 +2,12 @@
 
 ## Machine Setup
 
-- Uninstall Device Manufacturer Installed Crap
 - Microsoft Store Updates
 - Windows Updates
-- Driver Updates
+- Driver Installs
+  - GoXLR
+  - AMD
+  - Nvidia
 - Setup Dev Drive
 - Run base winget configuration
 - Uninstall Microsoft Installed Crap
@@ -18,8 +20,12 @@
 - Enable Clipboard History
 - Terminal as Default
 - Set Wallpaper
+- WSL Installation & Configuration
 - Install Docker
-- WSL Configuration
 - Phone Link
+- Oculus
+- Hoyoverse
+- Battle.Net
+- EFT
 
 `winget configure .\base.dsc.yml --accept-configuration-agreements`

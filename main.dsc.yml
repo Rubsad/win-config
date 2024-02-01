@@ -42,10 +42,19 @@ properties:
         Ensure: Present
     # Show File Extensions
     - resource: Microsoft.Windows.Developer/HideFileExtensions
+      id: ShowFileExtensionsDSCBug
+      directives:
+        description: Show File Extensions
+        allowPrerelease: true
+      settings:
+        Ensure: Present
+    - resource: Microsoft.Windows.Developer/HideFileExtensions
       id: ShowFileExtensions
       directives:
         description: Show File Extensions
         allowPrerelease: true
+      dependsOn:
+        - ShowFileExtensionsDSCBug
       settings:
         Ensure: Absent
     # Hide Task View Button
@@ -128,7 +137,19 @@ properties:
         TestScript: |
           return $false
         SetScript: |
-          Invoke-RestMethod https://raw.githubusercontent.com/ozokuz/win-config/main/wallpaper.png -OutFile "$env:USERPROFILE\Pictures\wallpaper.png"
+          Invoke-RestMethod https://raw.githubusercontent.com/rubsad/win-config/main/wallpaper.png -OutFile "$env:USERPROFILE\Pictures\wallpaper.png"
+    # Download Custom Uploader
+    - resource: PSDscResources/Script
+      id: CustomUploader
+      directives:
+        description: Download Custom uploader
+      settings:
+        GetScript: |
+          return $false
+        TestScript: |
+          return $false
+        SetScript: |
+          Invoke-RestMethod https://raw.githubusercontent.com/rubsad/win-config/main/sadder.tv.sxcu -OutFile "$env:USERPROFILE\Downloads\sadder.tv.sxcu"
     # Setup Folder Structure
     - resource: PSDscResources/Script
       id: FolderStructure
@@ -145,8 +166,7 @@ properties:
           $maven = Test-Path "D:\packages\maven" -Type Container
           $src = Test-Path "D:\src" -Type Container
           $srcp = Test-Path "D:\src\p" -Type Container
-          $srcs = Test-Path "D:\src\s" -Type Container
-          $srcNrth = Test-Path "D:\src\nrth" -Type Container
+          $srcSadder = Test-Path "D:\src\sadder" -Type Container
           return ${
             dotConfig = $dotConfig;
             tools = $tools;
@@ -157,8 +177,7 @@ properties:
             maven = $maven;
             src = $src;
             srcp = $srcp;
-            srcs = $srcs;
-            srcNrth = $srcNrth
+            srcSadder = $srcSadder
           }
         TestScript: |
           $dotConfig = Test-Path "$env:USERPROFILE\.config" -Type Container
@@ -170,9 +189,8 @@ properties:
           $maven = Test-Path "D:\packages\maven" -Type Container
           $src = Test-Path "D:\src" -Type Container
           $srcp = Test-Path "D:\src\p" -Type Container
-          $srcs = Test-Path "D:\src\s" -Type Container
-          $srcNrth = Test-Path "D:\src\nrth" -Type Container
-          return $dotConfig -and $tools -and $packages -and $npm -and $pip -and $cargo -and $maven -and $src -and $srcp -and $srcs -and $srcNrth
+          $srcSadder = Test-Path "D:\src\sadder" -Type Container
+          return $dotConfig -and $tools -and $packages -and $npm -and $pip -and $cargo -and $maven -and $src -and $srcp -and $srcs -and $srcSadder
         SetScript: |
           mkdir "$env:USERPROFILE\.config" -ErrorAction SilentlyContinue
           mkdir "$env:USERPROFILE\Tools" -ErrorAction SilentlyContinue
@@ -183,8 +201,7 @@ properties:
           mkdir "D:\packages\maven" -ErrorAction SilentlyContinue
           mkdir "D:\src" -ErrorAction SilentlyContinue
           mkdir "D:\src\p" -ErrorAction SilentlyContinue
-          mkdir "D:\src\s" -ErrorAction SilentlyContinue
-          mkdir "D:\src\nrth" -ErrorAction SilentlyContinue
+          mkdir "D:\src\sadder" -ErrorAction SilentlyContinue
     # Run O&O Shutup 10++
     - resource: PSDscResources/Script
       id: OOSU
@@ -198,7 +215,7 @@ properties:
         TestScript: |
           return $false
         SetScript: |
-          Invoke-RestMethod https://raw.githubusercontent.com/ozokuz/win-config/main/oosu.ps1 -OutFile "$env:USERPROFILE\Downloads\oosu.ps1"
+          Invoke-RestMethod https://raw.githubusercontent.com/rubsad/win-config/main/oosu.ps1 -OutFile "$env:USERPROFILE\Downloads\oosu.ps1"
           powershell.exe -Command "$env:USERPROFILE\Downloads\oosu.ps1"
     # Setup Quick Access Pins
     - resource: PSDscResources/Script
@@ -263,14 +280,6 @@ properties:
         allowPrerelease: true
       settings:
         id: Microsoft.Sysinternals.ProcessExplorer
-        source: winget
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      id: ZoomIt
-      directives:
-        description: Install ZoomIt
-        allowPrerelease: true
-      settings:
-        id: Microsoft.Sysinternals.ZoomIt
         source: winget
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: Everything
@@ -368,14 +377,7 @@ properties:
       settings:
         id: Obsidian.Obsidian
         source: winget
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      id: TickTick
-      directives:
-        description: Install TickTick
-        allowPrerelease: true
-      settings:
-        id: Appest.TickTick
-        source: winget
+        
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: Authy
       directives:
@@ -393,28 +395,12 @@ properties:
         id: Bitwarden.Bitwarden
         source: winget
     - resource: Microsoft.WinGet.DSC/WinGetPackage
-      id: Vivaldi
+      id: Brave
       directives:
-        description: Install Vivaldi
+        description: Install Brave
         allowPrerelease: true
       settings:
-        id: VivaldiTechnologies.Vivaldi
-        source: winget
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      id: Chrome
-      directives:
-        description: Install Chrome
-        allowPrerelease: true
-      settings:
-        id: Google.Chrome
-        source: winget
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      id: Firefox
-      directives:
-        description: Install Firefox
-        allowPrerelease: true
-      settings:
-        id: Mozilla.Firefox
+        id: Brave.Brave
         source: winget
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: PaintNET
@@ -439,6 +425,104 @@ properties:
         allowPrerelease: true
       settings:
         id: KDE.Krita
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: audacity
+      directives:
+        description: Install Audacity
+        allowPrerelease: true
+      settings:
+        id: Audacity.Audacity
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: OBS
+      directives:
+        description: Install OBS Studio
+        allowPrerelease: true
+      settings:
+        id: OBSProject.OBSStudio
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: JDK8
+      directives:
+        description: Install Java 8
+        allowPrerelease: true
+      settings:
+        id: EclipseAdoptium.Temurin.8.JDK
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: JDK17
+      directives:
+        description: Install Java 17
+        allowPrerelease: true
+      settings:
+        id: EclipseAdoptium.Temurin.17.JDK
+        source: winget
+    # Gaming
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Prism
+      directives:
+        description: Install Prism Launcher
+        allowPrerelease: true
+      settings:
+        id: PrismLauncher.PrismLauncher
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Steam
+      directives:
+        description: Install Steam
+        allowPrerelease: true
+      settings:
+        id: Valve.Steam
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Ubisoft
+      directives:
+        description: Install Ubisoft Connect
+        allowPrerelease: true
+      settings:
+        id: Ubisoft.Connect
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: EpicGames
+      directives:
+        description: Install Epic Games
+        allowPrerelease: true
+      settings:
+        id: EpicGames.EpicGamesLauncher
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: Riot
+      directives:
+        description: Install Riot Launcher
+        allowPrerelease: true
+      settings:
+        id: RiotGames.LeagueOfLegends.EUW
+        source: winget
+    # Pheriperals
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: NZXTCAM
+      directives:
+        description: Install NZXT CAM
+        allowPrerelease: true
+      settings:
+        id: NZXT.CAM
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: GoXLR
+      directives:
+        description: Install GoXLR Utility
+        allowPrerelease: true
+      settings:
+        id: GoXLR-on-Linux.GoXLR-Utility
+        source: winget
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: GHub
+      directives:
+        description: Install Logitech GHub
+        allowPrerelease: true
+      settings:
+        id: Logitech.GHUB
         source: winget
     # Install Dev Tools
     - resource: Microsoft.WinGet.DSC/WinGetPackage
@@ -475,7 +559,7 @@ properties:
         TestScript: |
           return Test-Path "$env:USERPROFILE\Downloads\vsconfig"
         SetScript: |
-          Invoke-RestMethod https://raw.githubusercontent.com/ozokuz/win-config/main/.vsconfig -OutFile "$env:USERPROFILE\Downloads\.vsconfig"
+          Invoke-RestMethod https://raw.githubusercontent.com/rubsad/win-config/main/.vsconfig -OutFile "$env:USERPROFILE\Downloads\.vsconfig"
     - resource: Microsoft.VisualStudio.DSC/VSComponents
       id: VSWorkloads
       dependsOn:
