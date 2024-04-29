@@ -28,4 +28,4 @@
 - Battle.Net
 - EFT
 
-`winget configure .\base.dsc.yml --accept-configuration-agreements`
+`winget configure .\main.dsc.yml --accept-configuration-agreements`
