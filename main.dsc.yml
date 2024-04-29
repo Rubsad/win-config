@@ -18,19 +18,6 @@ properties:
           Start-ScheduledTask "ExecutionPolicy"
           Start-Sleep 2
           Unregister-ScheduledTask "ExecutionPolicy" -Confirm:$false
-    # Remove Bloat Default Apps
-    - resource: PSDscResources/Script
-      id: RemoveDefaultApps
-      directives:
-        description: Remove Bloat Default Apps
-      settings:
-        GetScript: |
-          return $true
-        TestScript: |
-          return $false
-        SetScript: |
-          $apps = @("Clipchamp","549981C3F5F10","BingNews","BingWeather","MicrosoftStickyNotes","MicrosoftOfficeHub","Todos","WindowsFeedbackHub","WindowsMaps","WindowsSoundRecorder","QuickAssist","windowscommunicationsapps","GetHelp","Getstarted")
-          Get-AppxPackage -AllUsers | where {$name = $_.Name; ($apps | %{$name.Contains($_)}) -Contains $true} | Remove-AppxPackage -AllUsers
     # Settings
     # Enable Developer Mode
     - resource: Microsoft.Windows.Developer/DeveloperMode
@@ -40,68 +27,6 @@ properties:
         allowPrerelease: true
       settings:
         Ensure: Present
-    # Show File Extensions
-    - resource: Microsoft.Windows.Developer/HideFileExtensions
-      id: ShowFileExtensionsDSCBug
-      directives:
-        description: Show File Extensions
-        allowPrerelease: true
-      settings:
-        Ensure: Present
-    - resource: Microsoft.Windows.Developer/HideFileExtensions
-      id: ShowFileExtensions
-      directives:
-        description: Show File Extensions
-        allowPrerelease: true
-      dependsOn:
-        - ShowFileExtensionsDSCBug
-      settings:
-        Ensure: Absent
-    # Hide Task View Button
-    - resource: Microsoft.Windows.Developer/ShowTaskViewButton
-      id: StupidTaskViewDSCBug
-      directives:
-        description: Stupid Task View Button Setting Bug
-        allowPrerelease: true
-      settings:
-        Ensure: Present
-    - resource: Microsoft.Windows.Developer/ShowTaskViewButton
-      id: HideTaskView
-      directives:
-        description: Hide Task View Button
-        allowPrerelease: true
-      dependsOn:
-        - StupidTaskViewDSCBug
-      settings:
-        Ensure: Absent
-    # Show Hidden Files
-    - resource: Microsoft.Windows.Developer/ShowHiddenFiles
-      id: ShowHiddenFiles
-      directives:
-        description: Show Hidden Files
-        allowPrerelease: true
-      settings:
-        Ensure: Present
-    # Enable Dark Mode
-    - resource: Microsoft.Windows.Developer/EnableDarkMode
-      id: EnableDarkMode
-      directives:
-        description: Enable Dark Mode
-        allowPrerelease: true
-      settings:
-        Ensure: Present
-    # File Explorer starts to This PC
-    - resource: PSDscResources/Registry
-      id: ExplorerThisPC
-      directives:
-        description: File Explorer starts to This PC
-      settings:
-        Key: "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
-        ValueName: LaunchTo
-        ValueType: DWord
-        ValueData: 1
-        Ensure: Present
-        Force: true
     # Hide Desktop Icons
     - resource: PSDscResources/Registry
       id: HideIcons
@@ -190,7 +115,7 @@ properties:
           $src = Test-Path "D:\src" -Type Container
           $srcp = Test-Path "D:\src\p" -Type Container
           $srcSadder = Test-Path "D:\src\sadder" -Type Container
-          return $dotConfig -and $tools -and $packages -and $npm -and $pip -and $cargo -and $maven -and $src -and $srcp -and $srcs -and $srcSadder
+          return $dotConfig -and $tools -and $packages -and $npm -and $pip -and $cargo -and $maven -and $src -and $srcp -and $srcSadder
         SetScript: |
           mkdir "$env:USERPROFILE\.config" -ErrorAction SilentlyContinue
           mkdir "$env:USERPROFILE\Tools" -ErrorAction SilentlyContinue
@@ -202,21 +127,6 @@ properties:
           mkdir "D:\src" -ErrorAction SilentlyContinue
           mkdir "D:\src\p" -ErrorAction SilentlyContinue
           mkdir "D:\src\sadder" -ErrorAction SilentlyContinue
-    # Run O&O Shutup 10++
-    - resource: PSDscResources/Script
-      id: OOSU
-      dependsOn:
-        - FolderStructure
-      directives:
-        description: Run OOSU
-      settings:
-        GetScript: |
-          return $true
-        TestScript: |
-          return $false
-        SetScript: |
-          Invoke-RestMethod https://raw.githubusercontent.com/rubsad/win-config/main/oosu.ps1 -OutFile "$env:USERPROFILE\Downloads\oosu.ps1"
-          powershell.exe -Command "$env:USERPROFILE\Downloads\oosu.ps1"
     # Setup Quick Access Pins
     - resource: PSDscResources/Script
       id: QuickAccess
@@ -241,14 +151,6 @@ properties:
           $pins = @("$env:USERPROFILE", "D:\src", "$env:USERPROFILE\Tools", "::{645FF040-5081-101B-9F08-00AA002F954E}")
           $pins | foreach-object {$o.Namespace($_).Self.InvokeVerb("pintohome")}
     # Install Utils (7-Zip, PowerToys, PowerShell, Everything, AltSnap, ShareX, Tailscale, EarTrumpet, WizTree & Nilesoft Shell)
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      id: 7Zip
-      directives:
-        description: Install 7-Zip
-        allowPrerelease: true
-      settings:
-        id: "7zip.7zip"
-        source: winget
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: PowerToys
       directives:
@@ -377,15 +279,6 @@ properties:
       settings:
         id: Obsidian.Obsidian
         source: winget
-        
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
-      id: Authy
-      directives:
-        description: Install Authy
-        allowPrerelease: true
-      settings:
-        id: Twilio.Authy
-        source: winget
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: Bitwarden
       directives:
@@ -395,20 +288,12 @@ properties:
         id: Bitwarden.Bitwarden
         source: winget
     - resource: Microsoft.WinGet.DSC/WinGetPackage
-      id: Brave
-      directives:
-        description: Install Brave
-        allowPrerelease: true
-      settings:
-        id: Brave.Brave
-        source: winget
-    - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: PaintNET
       directives:
         description: Install Paint.NET
         allowPrerelease: true
       settings:
-        id: dotPDNLLC.paintdotnet
+        id: dotPDN.PaintDotNet
         source: winget
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: GIMP
@@ -611,7 +496,7 @@ properties:
         TestScript: |
           return Test-Path "$env:USERPROFILE\scoop" -Type Container
         SetScript: |
-          Invoke-RestMethod https://raw.githubusercontent.com/ozokuz/win-config/main/scoop.ps1 -OutFile "$env:USERPROFILE\Downloads\scoop.ps1"
+          Invoke-RestMethod https://raw.githubusercontent.com/Rubsad/win-config/main/scoop.ps1 -OutFile "$env:USERPROFILE\Downloads\scoop.ps1"
           $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "$env:USERPROFILE\Downloads\scoop.ps1"
           Register-ScheduledTask -TaskName "SetupScoop" -Action $action
           Start-ScheduledTask "SetupScoop"
