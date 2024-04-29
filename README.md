@@ -7,7 +7,6 @@
 - Driver Installs
   - GoXLR
   - AMD
-  - Nvidia
 - Setup Dev Drive
 - Run base winget configuration
 - Uninstall Microsoft Installed Crap
