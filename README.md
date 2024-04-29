@@ -2,26 +2,23 @@
 
 ## Machine Setup
 
-- Microsoft Store Updates
-- Windows Updates
+- Install AtlasOS
+  - https://atlasos.net/
+
 - Driver Installs
   - GoXLR
   - AMD
 - Setup Dev Drive
 - Run base winget configuration
-- Uninstall Microsoft Installed Crap
-- Unpin Start Menu Items
 - Install Store Apps
   - Spotify
   - WhatsApp
 - Pin Start Menu Items
-- Alt+Tab Edge tabs off
 - Enable Clipboard History
 - Terminal as Default
 - Set Wallpaper
 - WSL Installation & Configuration
 - Install Docker
-- Phone Link
 - Oculus
 - Hoyoverse
 - Battle.Net
