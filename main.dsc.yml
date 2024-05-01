@@ -18,6 +18,19 @@ properties:
           Start-ScheduledTask "ExecutionPolicy"
           Start-Sleep 2
           Unregister-ScheduledTask "ExecutionPolicy" -Confirm:$false
+    # Remove Bloat Default Apps
+    - resource: PSDscResources/Script
+      id: RemoveDefaultApps
+      directives:
+        description: Remove Bloat Default Apps
+      settings:
+        GetScript: |
+          return $true
+        TestScript: |
+          return $false
+        SetScript: |
+          $apps = @("Clipchamp","549981C3F5F10","BingNews","BingWeather","MicrosoftStickyNotes","MicrosoftOfficeHub","Todos","WindowsFeedbackHub","WindowsMaps","WindowsSoundRecorder","QuickAssist","windowscommunicationsapps","GetHelp","Getstarted")
+          Get-AppxPackage -AllUsers | where {$name = $_.Name; ($apps | %{$name.Contains($_)}) -Contains $true} | Remove-AppxPackage -AllUsers
     # Settings
     # Enable Developer Mode
     - resource: Microsoft.Windows.Developer/DeveloperMode
@@ -27,6 +40,68 @@ properties:
         allowPrerelease: true
       settings:
         Ensure: Present
+  # Show File Extensions
+    - resource: Microsoft.Windows.Developer/HideFileExtensions
+      id: ShowFileExtensionsDSCBug
+      directives:
+        description: Show File Extensions
+        allowPrerelease: true
+      settings:
+        Ensure: Present
+    - resource: Microsoft.Windows.Developer/HideFileExtensions
+      id: ShowFileExtensions
+      directives:
+        description: Show File Extensions
+        allowPrerelease: true
+      dependsOn:
+        - ShowFileExtensionsDSCBug
+      settings:
+        Ensure: Absent
+    # Hide Task View Button
+    - resource: Microsoft.Windows.Developer/ShowTaskViewButton
+      id: StupidTaskViewDSCBug
+      directives:
+        description: Stupid Task View Button Setting Bug
+        allowPrerelease: true
+      settings:
+        Ensure: Present
+    - resource: Microsoft.Windows.Developer/ShowTaskViewButton
+      id: HideTaskView
+      directives:
+        description: Hide Task View Button
+        allowPrerelease: true
+      dependsOn:
+        - StupidTaskViewDSCBug
+      settings:
+        Ensure: Absent
+    # Show Hidden Files
+    - resource: Microsoft.Windows.Developer/ShowHiddenFiles
+      id: ShowHiddenFiles
+      directives:
+        description: Show Hidden Files
+        allowPrerelease: true
+      settings:
+        Ensure: Present
+    # Enable Dark Mode
+    - resource: Microsoft.Windows.Developer/EnableDarkMode
+      id: EnableDarkMode
+      directives:
+        description: Enable Dark Mode
+        allowPrerelease: true
+      settings:
+        Ensure: Present
+    # File Explorer starts to This PC
+    - resource: PSDscResources/Registry
+      id: ExplorerThisPC
+      directives:
+        description: File Explorer starts to This PC
+      settings:
+        Key: "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"
+        ValueName: LaunchTo
+        ValueType: DWord
+        ValueData: 1
+        Ensure: Present
+        Force: true
     # Hide Desktop Icons
     - resource: PSDscResources/Registry
       id: HideIcons
@@ -127,6 +202,21 @@ properties:
           mkdir "D:\src" -ErrorAction SilentlyContinue
           mkdir "D:\src\p" -ErrorAction SilentlyContinue
           mkdir "D:\src\sadder" -ErrorAction SilentlyContinue
+    # Run O&O Shutup 10++
+    - resource: PSDscResources/Script
+      id: OOSU
+      dependsOn:
+        - FolderStructure
+      directives:
+        description: Run OOSU
+      settings:
+        GetScript: |
+          return $true
+        TestScript: |
+          return $false
+        SetScript: |
+          Invoke-RestMethod https://raw.githubusercontent.com/rubsad/win-config/main/oosu.ps1 -OutFile "$env:USERPROFILE\Downloads\oosu.ps1"
+          powershell.exe -Command "$env:USERPROFILE\Downloads\oosu.ps1"
     # Setup Quick Access Pins
     - resource: PSDscResources/Script
       id: QuickAccess
@@ -151,6 +241,14 @@ properties:
           $pins = @("$env:USERPROFILE", "D:\src", "$env:USERPROFILE\Tools", "::{645FF040-5081-101B-9F08-00AA002F954E}")
           $pins | foreach-object {$o.Namespace($_).Self.InvokeVerb("pintohome")}
     # Install Utils (7-Zip, PowerToys, PowerShell, Everything, AltSnap, ShareX, Tailscale, EarTrumpet, WizTree & Nilesoft Shell)
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: 7Zip
+      directives:
+        description: Install 7-Zip
+        allowPrerelease: true
+      settings:
+        id: "7zip.7zip"
+        source: winget
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: PowerToys
       directives:
